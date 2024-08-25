@@ -1,0 +1,45 @@
+/* app.component.css */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: linear-gradient(to right, #f7e07d, #f4c542); /* Žuti gradijent */
+    color: #333; /* Tamnija boja teksta za dobar kontrast */
+  }
+  
+  nav a {
+    text-decoration: none;
+    color: #333; /* Boja teksta linkova */
+    margin: 0 15px; /* Razmak između linkova */
+    font-weight: bold; /* Podebljan tekst */
+  }
+  
+  nav a:hover {
+    color: #000; /* Boja teksta linkova na hover */
+  }
+  
+  .nav-right {
+    display: flex;
+    align-items: center;
+    color: #333; /* Boja teksta u desnom delu navigacije */
+  }
+  
+  .nav-right span {
+    margin-right: 10px;
+  }
+  
+  .nav-right button {
+    background-color: #f4c542; /* Pozadina dugmeta */
+    border: none;
+    color: #333; /* Boja teksta dugmeta */
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .nav-right button:hover {
+    background-color: #f7e07d; /* Pozadina dugmeta na hover */
+  }
+  

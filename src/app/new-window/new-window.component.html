@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>Upload Document</h2>
+
+<mat-form-field appearance="fill">
+  <mat-label>Select Option</mat-label>
+  <mat-select [(value)]="selectedOption">
+    <mat-option value="option1">Domaci</mat-option>
+    <mat-option value="option2">Seminarski</mat-option>
+    <mat-option value="option3">Diplomski</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<div
+  class="drag-drop-area"
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+  (dragleave)="onDragLeave($event)"
+>
+  <p *ngIf="!file">Drag and drop a file here or click to select one</p>
+  <p *ngIf="file">{{ file.name }}</p>
+  <input type="file" (change)="onFileSelected($event)" />
+</div>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Close</button>
+  <button mat-button [disabled]="!file" (click)="onUpload()">Upload</button>
+</mat-dialog-actions>

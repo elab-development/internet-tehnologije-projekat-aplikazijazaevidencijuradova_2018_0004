@@ -1,0 +1,5 @@
+<div class="container">
+   <app-table *ngIf="user?.userType" [records]="records" [userType]="user.userType"></app-table>
+   <button *ngIf="user?.userType === 'user'" (click)="openNewWindow()" class="custom-button">Open New Window</button>
+  </div>
+  

@@ -1,0 +1,18 @@
+<!-- app.component.html -->
+
+<!-- Navigacija ili meni (opcionalno) -->
+<nav>
+  <a routerLink="/home">Home</a>
+
+  <!-- Prikaz korisničkog imena i dugme za odjavu -->
+  <div class="nav-right" *ngIf="username">
+    <span>{{ username }}</span>
+    <button (click)="logout()">Logout</button>
+  </div>
+
+</nav>
+
+<!-- Glavni sadržaj aplikacije -->
+<div class="content">
+  <router-outlet></router-outlet>
+</div>

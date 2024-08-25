@@ -1,0 +1,26 @@
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Document Name</th>
+      <th>Document Type</th>
+      <th>Username</th>
+      <th>Ocena</th>
+      <th *ngIf="userType === 'admin'">Akcija</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let record of records">
+      <td>{{ record.id }}</td>
+      <td>{{ record.documentName }}</td>
+      <td>{{ record.documentType }}</td>
+      <td>{{ record.username }}</td>
+      <td>{{ record.mark }}</td>
+      <td *ngIf="userType === 'admin'">
+        <button (click)="rateRecord(record)">
+          Oceni
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
