@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-new-window',
@@ -14,10 +16,10 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [CommonModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule]
 })
 export class NewWindowComponent {
-  selectedOption = 'option1';  // Podrazumevana vrednost dropdown menija
+  selectedOption = 'Domaci';
   file: File | null = null;
 
-  constructor(public dialogRef: MatDialogRef<NewWindowComponent>) {}
+  constructor(public dialogRef: MatDialogRef<NewWindowComponent>, private http: HttpClient) {}
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -52,9 +54,23 @@ export class NewWindowComponent {
 
   onUpload(): void {
     if (this.file) {
-      // Implementiraj logiku za slanje fajla na server preko API poziva
-      console.log('Uploading file:', this.file);
-      // Zatvori dijalog nakon upload-a
+      const formData = new FormData();
+      formData.append('file', this.file);
+
+      const headers = new HttpHeaders({
+        'documentType': this.selectedOption
+      });
+      console.log("formData:",formData)
+      console.log("File:",this.file)
+
+      this.http.post('http://localhost:8080/upload-file', formData, { headers }).subscribe({
+        next: (response) => {
+          console.log('File uploaded successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error uploading file:', error);
+        }
+      });
       this.dialogRef.close();
     }
   }

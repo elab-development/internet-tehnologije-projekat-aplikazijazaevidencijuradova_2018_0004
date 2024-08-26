@@ -10,7 +10,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let record of records">
+    <tr *ngFor="let record of records" (click)="viewDocument(record)">
       <td>{{ record.id }}</td>
       <td>{{ record.documentName }}</td>
       <td>{{ record.documentType }}</td>
