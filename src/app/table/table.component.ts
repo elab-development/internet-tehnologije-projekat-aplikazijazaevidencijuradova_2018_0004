@@ -22,7 +22,8 @@ export class TableComponent implements OnInit {
   ngOnInit(){
   }
 
-  rateRecord(record: Record): void {
+  rateRecord(record: Record, event: Event): void {
+    event.stopPropagation();
     const dialogRef = this.dialog.open(RateRecordComponent, {
       width: '400px',
       height: '300px',

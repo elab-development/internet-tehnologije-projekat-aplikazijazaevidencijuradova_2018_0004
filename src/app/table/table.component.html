@@ -17,7 +17,7 @@
       <td>{{ record.username }}</td>
       <td>{{ record.mark }}</td>
       <td *ngIf="userType === 'admin'">
-        <button (click)="rateRecord(record)">
+        <button (click)="rateRecord(record, $event)">
           Oceni
         </button>
       </td>
