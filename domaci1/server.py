@@ -34,9 +34,11 @@ class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     document_name = db.Column(db.String(255), nullable=False)
     document_type = db.Column(db.String(50), nullable=False)
-    username = db.Column(db.String(255), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     mark = db.Column(db.Integer, nullable=True)
     documentpath = db.Column(db.String(255), nullable=True)
+    
+    player = db.relationship('Player', backref=db.backref('records', lazy=True))
 
     def __repr__(self):
         return f'<Record {self.document_name}>'
@@ -83,6 +85,11 @@ def upload_file():
     if not document_type or not username:
         return jsonify({"error": "documentType and username headers are required"}), 400
 
+    # Pronađi korisnika prema username-u
+    player = Player.query.filter_by(username=username).first()
+    if not player:
+        return jsonify({"error": "User not found"}), 404
+
     # Proveri da li je fajl priložen
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
@@ -105,7 +112,7 @@ def upload_file():
     new_record = Record(
         document_name=file.filename,
         document_type=document_type,
-        username=username,
+        player_id=player.id,
         documentpath=file_path
     )
     db.session.add(new_record)
@@ -113,13 +120,17 @@ def upload_file():
 
     return jsonify({"message": "File uploaded successfully", "record_id": new_record.id}), 201
 
+# GET /records handler
 @app.route('/records', methods=['GET'])
 def get_records():
     username = request.headers.get('username')
 
     if username:
+        player = Player.query.filter_by(username=username).first()
+        if not player:
+            return jsonify({"error": "User not found"}), 404
         # Vraća sve zapise za određenog korisnika
-        records = Record.query.filter_by(username=username).all()
+        records = Record.query.filter_by(player_id=player.id).all()
     else:
         # Vraća sve zapise ako username nije prosleđen
         records = Record.query.all()
@@ -131,12 +142,13 @@ def get_records():
             "id": record.id,
             "documentName": record.document_name,
             "documentType": record.document_type,
-            "username": record.username,
+            "username": record.player.username,  # Korišćenje relacije za pristup username-u
             "mark": record.mark
         })
 
     return jsonify(records_list), 200
 
+# GET /records/<document_name> handler
 @app.route('/records/<document_name>', methods=['GET'])
 def get_document(document_name):
     username = request.headers.get('username')
@@ -144,7 +156,11 @@ def get_document(document_name):
     if not username:
         return jsonify({"error": "Username header is required"}), 400
 
-    record = Record.query.filter_by(document_name=document_name, username=username).first()
+    player = Player.query.filter_by(username=username).first()
+    if not player:
+        return jsonify({"error": "User not found"}), 404
+
+    record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
 
     if record is None:
         return jsonify({"error": "Document not found for the given user"}), 404
@@ -154,20 +170,25 @@ def get_document(document_name):
 
     return send_file(record.documentpath, as_attachment=True)
 
+# POST /record/rate handler
 @app.route('/record/rate', methods=['POST'])
 def rate_record():
     data = request.get_json()
 
     # Provera da li svi potrebni parametri postoje
     document_name = data.get('documentName')
-    user = data.get('user')
+    username = data.get('user')
     mark = data.get('mark')
 
-    if not document_name or not user or mark is None:
+    if not document_name or not username or mark is None:
         return jsonify({"error": "documentName, user, and mark are required"}), 400
 
+    player = Player.query.filter_by(username=username).first()
+    if not player:
+        return jsonify({"error": "User not found"}), 404
+
     # Pronađi zapis u bazi koji odgovara korisniku i dokumentu
-    record = Record.query.filter_by(document_name=document_name, username=user).first()
+    record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
 
     if record is None:
         return jsonify({"error": "Record not found"}), 404
@@ -177,7 +198,6 @@ def rate_record():
     db.session.commit()
 
     return jsonify({"message": "Record updated successfully", "record_id": record.id}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True)
