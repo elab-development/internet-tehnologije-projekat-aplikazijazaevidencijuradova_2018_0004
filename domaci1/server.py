@@ -154,5 +154,30 @@ def get_document(document_name):
 
     return send_file(record.documentpath, as_attachment=True)
 
+@app.route('/record/rate', methods=['POST'])
+def rate_record():
+    data = request.get_json()
+
+    # Provera da li svi potrebni parametri postoje
+    document_name = data.get('documentName')
+    user = data.get('user')
+    mark = data.get('mark')
+
+    if not document_name or not user or mark is None:
+        return jsonify({"error": "documentName, user, and mark are required"}), 400
+
+    # Pronađi zapis u bazi koji odgovara korisniku i dokumentu
+    record = Record.query.filter_by(document_name=document_name, username=user).first()
+
+    if record is None:
+        return jsonify({"error": "Record not found"}), 404
+
+    # Ažuriraj ocenu (mark)
+    record.mark = mark
+    db.session.commit()
+
+    return jsonify({"message": "Record updated successfully", "record_id": record.id}), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)
