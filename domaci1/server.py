@@ -170,6 +170,32 @@ def get_document(document_name):
 
     return send_file(record.documentpath, as_attachment=True)
 
+@app.route('/records/<document_name>', methods=['DELETE'])
+def delete_record(document_name):
+    username = request.headers.get('username')
+
+    if not username:
+        return jsonify({"error": "Username header is required"}), 400
+
+    player = Player.query.filter_by(username=username).first()
+    if not player:
+        return jsonify({"error": "User not found"}), 404
+
+    # Pronađi zapis u bazi koji odgovara korisniku i dokumentu
+    record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
+
+    if record is None:
+        return jsonify({"error": "Record not found"}), 404
+
+    try:
+        # Izbriši zapis iz baze
+        db.session.delete(record)
+        db.session.commit()
+        return jsonify({"message": "Record deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()  # U slučaju greške, poništi promene
+        return jsonify({"error": str(e)}), 500
+
 # POST /record/rate handler
 @app.route('/record/rate', methods=['POST'])
 def rate_record():
