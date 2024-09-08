@@ -188,10 +188,15 @@ def delete_record(document_name):
         return jsonify({"error": "Record not found"}), 404
 
     try:
+        # Ako postoji putanja do dokumenta, izbriši fajl sa diska
+        if record.documentpath and os.path.exists(record.documentpath):
+            os.remove(record.documentpath)
+
         # Izbriši zapis iz baze
         db.session.delete(record)
         db.session.commit()
-        return jsonify({"message": "Record deleted successfully"}), 200
+
+        return jsonify({"message": "Record and file deleted successfully"}), 200
     except Exception as e:
         db.session.rollback()  # U slučaju greške, poništi promene
         return jsonify({"error": str(e)}), 500
