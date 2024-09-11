@@ -1,8 +1,9 @@
-import os
+import os, requests
 from flask import Flask, request, jsonify, send_file, abort
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from flask_cors import CORS
+from enum import Enum
 
 app = Flask(__name__)
 
@@ -129,11 +130,10 @@ def get_records():
         player = Player.query.filter_by(username=username).first()
         if not player:
             return jsonify({"error": "User not found"}), 404
-        # Vraća sve zapise za određenog korisnika
-        records = Record.query.filter_by(player_id=player.id).all()
-    else:
-        # Vraća sve zapise ako username nije prosleđen
-        records = Record.query.all()
+        if player.userType == 'user':
+            records = Record.query.filter_by(player_id=player.id).all()
+        else:
+            records = Record.query.all()
 
     # Formatiranje odgovora
     records_list = []
@@ -142,7 +142,7 @@ def get_records():
             "id": record.id,
             "documentName": record.document_name,
             "documentType": record.document_type,
-            "username": record.player.username,  # Korišćenje relacije za pristup username-u
+            "username": record.player.username,
             "mark": record.mark
         })
 
@@ -181,8 +181,10 @@ def delete_record(document_name):
     if not player:
         return jsonify({"error": "User not found"}), 404
 
-    # Pronađi zapis u bazi koji odgovara korisniku i dokumentu
-    record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
+    if player.userType =='admin':
+        record = Record.query.filter_by(document_name=document_name).first()
+    else:
+        record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
 
     if record is None:
         return jsonify({"error": "Record not found"}), 404
@@ -229,6 +231,55 @@ def rate_record():
     db.session.commit()
 
     return jsonify({"message": "Record updated successfully", "record_id": record.id}), 200
+
+# Endpoint za proveru fajla sa VirusTotal
+@app.route('/record/check', methods=['GET'])
+def check_document():
+    document_name = request.headers.get('documentName')
+    username = request.headers.get('username')
+
+    if not document_name or not username:
+        return jsonify({"error": "documentName and username headers are required"}), 400
+
+    player = Player.query.filter_by(username=username).first()
+    if not player:
+        return jsonify({"error": "User not found"}), 404
+
+    if player.userType =='admin':
+        record = Record.query.filter_by(document_name=document_name).first()
+    else:
+        record = Record.query.filter_by(document_name=document_name, player_id=player.id).first()
+
+    if record is None:
+        return jsonify({"error": "Record not found"}), 404
+
+    if not record.documentpath or not os.path.exists(record.documentpath):
+        return jsonify({"error": "Document path is invalid"}), 404
+
+    # Proveri fajl sa VirusTotal API-jem
+    file_path = record.documentpath
+    files = {'file': open(file_path, 'rb')}
+    headers = {
+        'x-apikey': '111b117115eea436fd7df6c062b48b2d5ad90174d8f753f44ced01010fbac931'
+    }
+
+    response = requests.post('https://www.virustotal.com/api/v3/files', headers=headers, files=files)
+
+    print("TEST")
+    print(response)
+    # Parsiramo JSON odgovor iz VirusTotal API-ja
+    api_response = response.json()
+    file_id = api_response['data']['id']
+
+    # Ispisujemo vrednost id u terminalu
+    print(f"File ID: {file_id}")
+    response = requests.get(f'https://www.virustotal.com/api/v3/analyses/{file_id}', headers=headers)
+
+    print(f"Response: {response}")
+    if response.status_code != 200:
+        return jsonify({"error": "Error checking file with VirusTotal"}), response.status_code
+    print(f"JSON: {response.json()}")
+    return jsonify(response.json())
 
 if __name__ == '__main__':
     app.run(debug=True)
