@@ -6,7 +6,9 @@
       <th>Document Type</th>
       <th>Username</th>
       <th>Ocena</th>
-      <th *ngIf="userType === 'admin'">Akcija</th>
+      <th *ngIf="userType === 'admin'">Oceni</th>
+      <th *ngIf="userType !== 'guest'">Obrisi</th>
+      <th *ngIf="userType !== 'guest'">Proveri</th>
     </tr>
   </thead>
   <tbody>
@@ -21,6 +23,20 @@
           Oceni
         </button>
       </td>
+      <td *ngIf="userType !== 'guest'">
+        <button (click)="deleteRecord(record, $event)">
+          Obrisi
+        </button>
+      </td>
+      <td *ngIf="userType !== 'guest'">
+        <button (click)="checkDocument(record, $event)">
+          Proveri
+        </button>
+      </td>
     </tr>
   </tbody>
 </table>
+
+<div *ngIf="serverResponse" class="response-container">
+  {{ serverResponse }}
+</div>

@@ -5,7 +5,7 @@ import { TableComponent } from '../table/table.component';
 import { CommonModule } from '@angular/common'; 
 import { MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit {
       this.getUserDetails(username).pipe(
         switchMap((userData: User) => {
           this.user = userData;
-          return this.getRecords(); // Preuzmi records nakon što se korisnik učita
+          return this.getRecords(this.user.username); // Preuzmi records nakon što se korisnik učita
         }),
         catchError(error => {
           console.error('An error occurred:', error);
@@ -63,12 +63,15 @@ export class HomeComponent implements OnInit {
 
   // Metoda za izvršavanje HTTP GET poziva za korisničke podatke
   getUserDetails(username: string): Observable<User> {
-    return this.http.get<User>(`http://localhost:8080/user-details/${username}`);
+    return this.http.get<User>(`http://localhost:5000/user-details/${username}`);
   }
   
   // Metoda za izvršavanje HTTP GET poziva za records
-  getRecords(): Observable<Record[]> {
-    return this.http.get<Record[]>('http://localhost:8080/records');
+  getRecords(username: string): Observable<Record[]> {
+    const headers = new HttpHeaders({
+      'username': username
+    });
+    return this.http.get<Record[]>('http://localhost:5000/records', {headers});
   }
 
 

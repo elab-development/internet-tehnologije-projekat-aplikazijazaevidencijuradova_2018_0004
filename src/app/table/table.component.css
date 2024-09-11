@@ -1,36 +1,46 @@
-
 :host {
-    display: block;
-    height: 100vh; /* Podesi visinu na 100% visine vidljivog dela prozora */
-    display: flex;
-    justify-content: center; /* Horizontalno centriranje */
-    align-items: flex-start; /* Poravnaj tabelu na vrhu */
-    padding-top: 30px; /* Razmak od vrha */
-  }
-  
-  table {
-    border-collapse: collapse;
-    width: 80%; /* Podesi širinu tabele, možeš prilagoditi po potrebi */
-    max-width: 1000px; /* Maksimalna širina tabele */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Dodaj senku za bolji vizuelni efekat */
-  }
-  
-  th, td {
-    border: 1px solid #ddd; /* Boja ivica */
-    padding: 8px; /* Razmak unutar ćelija */
-    text-align: left; /* Poravnanje teksta u levo */
-  }
-  
-  th {
-    background-color: #f4c542; /* Pozadina za zaglavlja kolona */
-    color: #333; /* Boja teksta u zaglavlju */
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2; /* Pozadina za parne redove */
-  }
-  
-  tr:hover {
-    background-color: #ddd; /* Pozadina za redove na hover */
-  }
-  
+  display: block;
+  height: 100vh; /* Podesi visinu na 100% visine vidljivog dela prozora */
+  padding-top: 30px; /* Razmak od vrha */
+  text-align: center; /* Centriraj sadržaj */
+}
+
+table {
+  border-collapse: collapse;
+  width: 80%; /* Podesi širinu tabele, možeš prilagoditi po potrebi */
+  max-width: 1000px; /* Maksimalna širina tabele */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Dodaj senku za bolji vizuelni efekat */
+  margin-bottom: 20px; /* Razmak između tabele i div-a */
+}
+
+th, td {
+  border: 1px solid #ddd; /* Boja ivica */
+  padding: 8px; /* Razmak unutar ćelija */
+  text-align: left; /* Poravnanje teksta u levo */
+}
+
+th {
+  background-color: #f4c542; /* Pozadina za zaglavlja kolona */
+  color: #333; /* Boja teksta u zaglavlju */
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2; /* Pozadina za parne redove */
+}
+
+tr:hover {
+  background-color: #ddd; /* Pozadina za redove na hover */
+}
+
+/* Stil za div ispod tabele */
+.response-container {
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+  text-align: left; /* Poravnaj tekst u levo */
+  white-space: pre-wrap; /* Očuvanje razmaka i prelom redova */
+  font-family: monospace; /* Koristi monospaced font za bolji izgled JSON-a */
+  max-height: 300px; /* Podesi maksimalnu visinu za scroll */
+  overflow-y: auto; /* Dodaj scroll ako je sadržaj predugačak */
+}

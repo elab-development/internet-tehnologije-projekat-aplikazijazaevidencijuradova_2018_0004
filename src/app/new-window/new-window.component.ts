@@ -58,12 +58,13 @@ export class NewWindowComponent {
       formData.append('file', this.file);
 
       const headers = new HttpHeaders({
-        'documentType': this.selectedOption
+        'documentType': this.selectedOption,
+        'username': localStorage.getItem('username')!
       });
       console.log("formData:",formData)
       console.log("File:",this.file)
 
-      this.http.post('http://localhost:8080/upload-file', formData, { headers }).subscribe({
+      this.http.post('http://localhost:5000/upload-file', formData, { headers }).subscribe({
         next: (response) => {
           console.log('File uploaded successfully:', response);
         },

@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 export class TableComponent implements OnInit {
   @Input() records: Record[] = [];
   @Input() userType: string | undefined= '';
+  serverResponse: string | null = null;
 
   constructor(private http: HttpClient, public dialog: MatDialog) {}
 
@@ -40,13 +41,45 @@ export class TableComponent implements OnInit {
     });
   }
 
+  deleteRecord(record: Record, event: Event): void {
+    event.stopPropagation();
+    const headers = { 'username': localStorage.getItem('username') || '' };
+    this.http.delete(`http://localhost:5000/records/${record.documentName}`, { headers, responseType: 'json' })
+    .subscribe(response => {
+      console.log('Record deleted successfully:', response);
+      // Ažuriraj listu zapisa ili obavi neku dodatnu radnju
+    }, error => {
+      console.error('Error deleting record:', error);
+    });
+  }
+
+  
+
   viewDocument(record: Record): void {
-    this.http.get(`http://localhost:8080/records/${record.documentName}`, { responseType: 'blob' })
+    const headers = { 'username': localStorage.getItem('username') || '' };
+    this.http.get(`http://localhost:5000/records/${record.documentName}`, { headers, responseType: 'blob' })
       .subscribe(response => {
         const url = window.URL.createObjectURL(response);
         window.open(url);
       }, error => {
         console.error('Error fetching document:', error);
+      });
+  }
+
+  checkDocument(record: Record, event: Event): void {
+    event.stopPropagation();
+    const headers = {
+      'username': localStorage.getItem('username') || '',
+      'documentName': record.documentName
+    };
+  
+    this.http.get(`http://localhost:5000/record/check`, { headers })
+      .subscribe(response => {
+        const responseMessage = JSON.stringify(response, null, 2);
+        this.serverResponse = responseMessage
+      }, error => {
+        console.error('Greška prilikom provere dokumenta:', error);
+        alert('Došlo je do greške prilikom provere dokumenta.');
       });
   }
 

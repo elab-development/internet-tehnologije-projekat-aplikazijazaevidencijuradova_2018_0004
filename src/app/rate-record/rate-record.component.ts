@@ -35,7 +35,7 @@ export class RateRecordComponent {
         mark: this.selectedRating
       };
   
-      this.http.post('http://localhost:8080/record/rate', ratingData).subscribe(
+      this.http.post('http://localhost:5000/record/rate', ratingData).subscribe(
         response => {
           console.log('Rating submitted successfully:', response);
         },

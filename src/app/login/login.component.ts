@@ -29,7 +29,7 @@ export class LoginComponent {
       'password': password
     });
 
-    this.http.post('http://localhost:8080/login', null, { headers, observe: 'response' }).subscribe({
+    this.http.post('http://localhost:5000/login', null, { headers, observe: 'response' }).subscribe({
       next: (response) => {
         if (response.status === 200) {
           localStorage.setItem('username', username);
@@ -44,6 +44,11 @@ export class LoginComponent {
         }
       }
     });
+  }
+
+  loginAsGuest() {
+    localStorage.setItem('username', 'GOST');
+    this.router.navigate(['/home/' + 'guest']);
   }
 
 }
