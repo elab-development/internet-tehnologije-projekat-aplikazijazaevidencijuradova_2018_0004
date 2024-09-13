@@ -42,3 +42,45 @@
     transform: translateY(-3px); /* Malo podiže dugme pri hoveru */
   }
   
+
+  .search-container {
+    display: flex;
+    gap: 15px; /* Razmak između input polja i dugmeta */
+    margin-bottom: 20px; /* Razmak između pretrage i tabele */
+  }
+  
+  .search-item {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px; /* Razmak između input polja */
+  }
+  
+  .search-item label {
+    margin-bottom: 5px; /* Razmak između labela i input polja */
+  }
+  
+  .search-item input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  button {
+    margin-top: 20px;
+  }
+  
+  button.search-button {
+    background: linear-gradient(90deg, #4caf50, #8bc34a); /* Zeleni gradijent za dugme pretrage */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  
+  button.search-button:hover {
+    background: linear-gradient(90deg, #8bc34a, #4caf50); /* Obrnut gradijent na hover */
+    transform: translateY(-3px); /* Malo podiže dugme pri hoveru */
+  }

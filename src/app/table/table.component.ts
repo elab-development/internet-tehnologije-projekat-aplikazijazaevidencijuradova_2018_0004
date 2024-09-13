@@ -17,6 +17,8 @@ export class TableComponent implements OnInit {
   @Input() records: Record[] = [];
   @Input() userType: string | undefined= '';
   serverResponse: string | null = null;
+  sortOrder: 'asc' | 'desc' = 'asc';
+  sortKey: keyof Record = 'id'; 
 
   constructor(private http: HttpClient, public dialog: MatDialog) {}
 
@@ -83,4 +85,25 @@ export class TableComponent implements OnInit {
       });
   }
 
+  sortRecords(key: keyof Record): void {
+    this.sortOrder = this.sortKey === key && this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.sortKey = key;
+  
+    this.records.sort((a, b) => {
+      const valueA = a[this.sortKey];
+      const valueB = b[this.sortKey];
+  
+      if (valueA === null && valueB === null) return 0;
+      if (valueA === null) return this.sortOrder === 'asc' ? -1 : 1;
+      if (valueB === null) return this.sortOrder === 'asc' ? 1 : -1;
+  
+      if (valueA < valueB) {
+        return this.sortOrder === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortOrder === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
 }

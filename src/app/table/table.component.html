@@ -1,11 +1,26 @@
 <table>
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Document Name</th>
-      <th>Document Type</th>
-      <th>Username</th>
-      <th>Ocena</th>
+      <th (click)="sortRecords('id')">
+        ID
+        <span [ngClass]="{'sort-up': sortKey === 'id' && sortOrder === 'asc', 'sort-down': sortKey === 'id' && sortOrder === 'desc'}"></span>
+      </th>
+      <th (click)="sortRecords('documentName')">
+        Document Name
+        <span [ngClass]="{'sort-up': sortKey === 'documentName' && sortOrder === 'asc', 'sort-down': sortKey === 'documentName' && sortOrder === 'desc'}"></span>
+      </th>
+      <th (click)="sortRecords('documentType')">
+        Document Type
+        <span [ngClass]="{'sort-up': sortKey === 'documentType' && sortOrder === 'asc', 'sort-down': sortKey === 'documentType' && sortOrder === 'desc'}"></span>
+      </th>
+      <th (click)="sortRecords('username')">
+        Username
+        <span [ngClass]="{'sort-up': sortKey === 'username' && sortOrder === 'asc', 'sort-down': sortKey === 'username' && sortOrder === 'desc'}"></span>
+      </th>
+      <th (click)="sortRecords('mark')">
+        Ocena
+        <span [ngClass]="{'sort-up': sortKey === 'mark' && sortOrder === 'asc', 'sort-down': sortKey === 'mark' && sortOrder === 'desc'}"></span>
+      </th>
       <th *ngIf="userType === 'admin'">Oceni</th>
       <th *ngIf="userType !== 'guest'">Obrisi</th>
       <th *ngIf="userType !== 'guest'">Proveri</th>

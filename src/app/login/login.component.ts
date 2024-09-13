@@ -51,4 +51,30 @@ export class LoginComponent {
     this.router.navigate(['/home/' + 'guest']);
   }
 
+  register(form: NgForm): void {
+    const username = form.value.username;
+    const password = form.value.password;
+  
+    const headers = new HttpHeaders({
+      'username': username,
+      'password': password
+    });
+  
+    this.http.post('http://localhost:5000/register', null, { headers, observe: 'response' }).subscribe({
+      next: (response) => {
+        if (response.status === 201) {
+          localStorage.setItem('username', username);
+          this.router.navigate(['/home/' + username]);
+        }
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.errorMessage = 'Username already exists. Please choose another.';
+        } else {
+          this.errorMessage = 'An error occurred during registration. Please try again later.';
+        }
+      }
+    });
+  }
+
 }

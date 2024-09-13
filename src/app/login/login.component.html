@@ -11,6 +11,7 @@
         <input type="password" id="password" name="password" required [(ngModel)]="password" />
       </div>
       <button type="submit">Login</button>
+      <button type="button" (click)="register(loginForm)">Register</button>
       <button type="guest" (click)="loginAsGuest()">Prijavi se kao gost</button>
       <div *ngIf="errorMessage" class="error-message">
         {{ errorMessage }}

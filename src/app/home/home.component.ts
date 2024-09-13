@@ -8,36 +8,23 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [TableComponent,MatDialogModule, CommonModule],
+  imports: [TableComponent,MatDialogModule, CommonModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   user!: User;
   records: Record[] = []; 
-  // records: Record[] = [
-  //   {
-  //     id: 1,
-  //     documentName: 'Invoice_July_2024.pdf',
-  //     documentType: 'Invoice',
-  //     username: 'john_doe',
-  //     mark: null,
-  //     document: new File([''], 'Invoice_July_2024.pdf', { type: 'application/pdf' })
-  //   },
-  //   {
-  //     id: 2,
-  //     documentName: 'ProjectPlan_August_2024.docx',
-  //     documentType: 'Project Plan',
-  //     username: 'jane_smith',
-  //     mark: 10,
-  //     document: new File([''], 'ProjectPlan_August_2024.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-  //   }
-  // ];
 
+  searchDocumentType: string = '';
+  searchUsername: string = '';
+  searchMark: number | null = null;
 
   constructor(public dialog: MatDialog, private http: HttpClient, private route: ActivatedRoute) {} // Definiše konstruktor koji prima MatDialog
 
@@ -65,13 +52,31 @@ export class HomeComponent implements OnInit {
   getUserDetails(username: string): Observable<User> {
     return this.http.get<User>(`http://localhost:5000/user-details/${username}`);
   }
+
+  searchRecords() {
+    const filters = {
+      documentType: this.searchDocumentType,
+      username: this.searchUsername,
+      mark: this.searchMark
+    };
+
+    this.getRecords(this.user.username, filters).subscribe((recordsData: Record[]) => {
+      this.records = recordsData;
+    });
+  }
   
   // Metoda za izvršavanje HTTP GET poziva za records
-  getRecords(username: string): Observable<Record[]> {
-    const headers = new HttpHeaders({
+  getRecords(username: string, filters?: any): Observable<Record[]> {
+    let headers = new HttpHeaders({
       'username': username
     });
-    return this.http.get<Record[]>('http://localhost:5000/records', {headers});
+    if (filters) {
+      if (filters.documentType) headers = headers.set('documentType', filters.documentType);
+      if (filters.username) headers = headers.set('filterUsername', filters.username);
+      if (filters.mark) headers = headers.set('mark', filters.mark.toString());
+    }
+  
+    return this.http.get<Record[]>('http://localhost:5000/records', { headers });
   }
 
 
