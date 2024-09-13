@@ -61,6 +61,35 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
+# Kreiraj POST /register handler
+@app.route('/register', methods=['POST'])
+def register():
+    # Uzimanje username i password iz hedera
+    username = request.headers.get('username')
+    password = request.headers.get('password')
+
+    # Provera da li su prosleđeni username i password
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    # Provera da li korisnik sa istim username-om već postoji
+    existing_user = Player.query.filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"error": "User with this username already exists"}), 409
+
+    # Kreiraj novog korisnika
+    new_player = Player(
+        username=username,
+        password=password,
+        userType='user'
+    )
+
+    # Sačuvaj novog korisnika u bazu
+    db.session.add(new_player)
+    db.session.commit()
+
+    return jsonify({"message": "User registered successfully"}), 201
+
 # POST /user-details/<username> handler
 @app.route('/user-details/<username>', methods=['GET'])
 def get_user_details(username):
@@ -124,16 +153,43 @@ def upload_file():
 # GET /records handler
 @app.route('/records', methods=['GET'])
 def get_records():
-    username = request.headers.get('username')
+    document_type = request.headers.get('documentType')
+    document_types = document_type.split(',') if document_type else None
 
-    if username:
-        player = Player.query.filter_by(username=username).first()
-        if not player:
-            return jsonify({"error": "User not found"}), 404
-        if player.userType == 'user':
-            records = Record.query.filter_by(player_id=player.id).all()
-        else:
-            records = Record.query.all()
+    username = request.headers.get('username')
+    usernames = username.split(',') if username else None
+
+    mark = request.headers.get('mark')
+    marks = mark.split(',') if mark else None
+
+    # Počni sa osnovnim upitom
+    query = Record.query
+
+    # Filtriraj prema korisnicima ako su prosleđeni
+    if usernames:
+        players = Player.query.filter(Player.username.in_(usernames)).all()
+        if not players:
+            return jsonify({"error": "User(s) not found"}), 404
+
+        # Ako je korisnik 'user', filtriraj po `player_id`
+        player_ids = [player.id for player in players if player.userType == 'user']
+        if player_ids:
+            query = query.filter(Record.player_id.in_(player_ids))
+
+    # Filtriraj prema tipu dokumenta ako su prosleđeni
+    if document_types:
+        query = query.filter(Record.document_type.in_(document_types))
+
+    # Filtriraj prema ocenama (mark) ako su prosleđene
+    if marks:
+        try:
+            marks = [int(m) for m in marks]  # Konverzija ocena u integer
+            query = query.filter(Record.mark.in_(marks))
+        except ValueError:
+            return jsonify({"error": "Mark must be a list of integers"}), 400
+
+    # Preuzmi rezultate iz upita
+    records = query.all()
 
     # Formatiranje odgovora
     records_list = []
@@ -265,8 +321,6 @@ def check_document():
 
     response = requests.post('https://www.virustotal.com/api/v3/files', headers=headers, files=files)
 
-    print("TEST")
-    print(response)
     # Parsiramo JSON odgovor iz VirusTotal API-ja
     api_response = response.json()
     file_id = api_response['data']['id']
